@@ -93,7 +93,7 @@ class InputHandler:
 
         return Response(game, ResponseCode.InProgress, "Select mode (1-7)")
 
-    # Function to handle mouse clicks - Fixed coordinate order
+    # Function to handle mouse clicks - turn only advances on a real uncover
     def handle_click(self, game: GameLogic, event, row: int, col: int) -> Response:
         """Handle mouse clicks with corrected coordinate order."""
         # Click inputs will only be handled when the game is in progress
@@ -106,17 +106,20 @@ class InputHandler:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                game.uncover_cell(row=row, col=col)
-                # Clear hint outline if you opened the hinted cell (optional cleanup)
-                if getattr(game, "last_hint", None) == (row, col):
+                # Left click -> uncover; only switch turns if uncover actually happened
+                did_uncover = game.uncover_cell(row=row, col=col)
+
+                # If we just opened the hinted cell, remove the highlight
+                if getattr(game, "last_hint", None) == (row, col) and did_uncover:
                     game.last_hint = None
-                # Only switch turns if the game is still running
-                if game.game_mode == GameMode.VERSUS and game.state.name == "Playing":
+
+                # Only switch turns if the game is still running and the move was effective
+                if game.game_mode == GameMode.VERSUS and game.state.name == "Playing" and did_uncover:
                     game.switch_turn()
                 return Response(game, ResponseCode.Finished, f"Uncovered cell at ({col}, {row})")
 
             if event.button == 3:
-                # Right click -> toggle flag
+                # Right click -> toggle flag (does not end turn)
                 game.toggle_flagged_cell(row=row, col=col)
                 return Response(game, ResponseCode.Finished, f"Toggled flag at ({col}, {row})")
 
