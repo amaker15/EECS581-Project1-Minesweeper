@@ -76,10 +76,12 @@ class GameLogic:
             self.ai_solver = AISolver(self, diff_map.get(ai_difficulty, Difficulty.EASY))
 
     def start_game(self) -> None:
-        """Move the game to the playing state and place mines."""
+        """Move the game to the playing state."""
+        # CORRECTION: Do NOT place mines yet. This will be done on the first click
+        # to guarantee a safe opening.
         self.state = GameState.Playing
         self.start_time = time.time()
-        self.initialize_board()
+        # The old call to self.initialize_board() is removed.
 
     def end_game(self, condition: EndCondition) -> None:
         """Ends game based on passed condition."""
@@ -110,29 +112,9 @@ class GameLogic:
         self.moves_history = []
         self.last_hint = None
 
-    def initialize_board(self) -> None:
-        """Sample and place mines in random locations."""
-        # Properly place mines using row/col coordinates
-        all_positions = [(r, c) for r in range(self.board.rows) for c in range(self.board.cols)]
-        mine_positions = random.sample(all_positions, k=self.total_mines)
-        for row, col in mine_positions:
-            self.board.toggle_mine(row, col)
-
-    def uncover_first_cell(self, old_row: int, old_col: int) -> None:
-        """Safely uncover the first cell (guarantee first click is not a mine)."""
-        # Continue normal processing if the cell is already safe
-        if not self.board.cell(old_row, old_col).is_mine:
-            return
-
-        # Move the mine elsewhere
-        while True:
-            new_row = random.randrange(self.board.rows)
-            new_col = random.randrange(self.board.cols)
-            new_cell = self.board.cell(new_row, new_col)
-            if not new_cell.is_mine:
-                self.board.toggle_mine(new_row, new_col)  # place a mine at the new location
-                break
-        self.board.toggle_mine(old_row, old_col)  # remove mine from original location
+    # CORRECTION: The 'initialize_board' and 'uncover_first_cell' functions are
+    # no longer needed and have been completely removed. The logic is now
+    # handled inside 'uncover_cell'.
 
     def uncover_cell(self, row: int, col: int, is_ai_move: bool = False) -> bool:
         """Uncover a selected cell.
@@ -152,10 +134,11 @@ class GameLogic:
         # Track move
         self.moves_history.append(("uncover", row, col, is_ai_move))
 
-        # Special handling for the very first uncover to guarantee safety
+        # CORRECTION: This is the first click. Generate the board now,
+        # guaranteeing this cell is safe by excluding it from mine placement.
         if self.covered_cells == (self.board.rows * self.board.cols):
-            self.uncover_first_cell(row, col)
-            cell = self.board.cell(row, col)  # refresh after potential mine relocation
+            self.board.place_unique_mines(self.total_mines, exclude=(row, col))
+            cell = self.board.cell(row, col)  # Refresh cell reference after board generation
 
         if cell.is_mine:
             # In Versus mode, the mover who hits a mine loses => other side wins.

@@ -56,12 +56,10 @@ class AISolver:
                 return move
             # If we flagged, keep looping to try unlocking a safe uncover
 
-        # Couldn’t deduce an uncover — fall back to one
-        if try_patterns:
-            move = self.cheat_move()  # HARD: safe uncover if available
-            if move:
-                return move
-        return self.easy_move()      # MEDIUM: random uncover as fallback
+        # CORRECTION: Couldn’t deduce an uncover — fall back to a random guess.
+        # This makes the Hard AI fallible, matching the behavior in the screenshot.
+        # Previously, Hard mode called self.cheat_move(), making it impossible to lose.
+        return self.easy_move()
 
     def _deduction_step(self, try_patterns: bool) -> Optional[Tuple[str, int, int]]:
         """Perform a single deduction action (flag OR uncover) if available."""
@@ -199,7 +197,7 @@ class AISolver:
         return None
 
     # ----------------------------
-    # Hard fallback (cheat)
+    # Hard fallback (cheat) - Now Unused
     # ----------------------------
     def cheat_move(self) -> Optional[Tuple[str, int, int]]:
         """Hard mode cheat - always uncover a safe cell."""
