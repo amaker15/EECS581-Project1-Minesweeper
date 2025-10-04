@@ -1,4 +1,6 @@
-# 💣 EECS581-Project1-Minesweeper — Team 26
+# 💣 EECS581-Project1-Minesweeper
+Team 26 (Part 1)
+Team 27 (Part 2)
 
 <div align="center">
 
@@ -10,10 +12,16 @@
 
 ## 👥 Roles
 
+Part 1
 * **Product Owner:** Hale Coffman
 * **Scrum Master:** Aidan Ingram
 * **Development:** Landon Bever · Sam Suggs · Aryan Kevat
 * **Tester:** Olivia Blankenship
+
+Part 2
+* **Product Owner:** Brandon Dodge
+* **Scrum Master:** Josh Dwoskin
+* **Development:** Zach Sevart, Asa Maker, Ebraheem Alaamer
 
 ---
 
